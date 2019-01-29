@@ -1,17 +1,28 @@
 package main
 
 import (
-	"fmt"
 	ec "MyErasureCoder/ErasureCoder"
+	"fmt"
+	"log"
+	"os"
 )
 
-
 func main() {
-	sampleFileName := "Reed-Solomon-Error-Correction.pdf"
+	//sampleFileName := "Reed-Solomon-Error-Correction.pdf"
+	sampleFileName := "1707.07345.pdf"
+	outputFolder := "tmp"
+	recoverFile := "recover.pdf"
 	fmt.Printf("test file %v\n", sampleFileName)
-	e := ec.ECoder{10, 4}
-	byteArrays, _ := e.LoadFile(sampleFileName)
-	for i := range byteArrays {
-		fmt.Println(byteArrays[i])
+
+	os.Remove(recoverFile)
+
+	e := ec.NewECoder(10, 4)
+	err := e.LoadFile(sampleFileName)
+	if err != nil {
+		log.Fatal(err)
 	}
+	e.Encoding()
+	e.StoreAll(outputFolder)
+	e.DeleteData(6)
+	e.FTReAssemble(recoverFile)
 }
