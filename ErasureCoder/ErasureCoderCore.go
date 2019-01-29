@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-var debug = true
+var debug = false
 
 func DPrint(format string, a ...interface{}) {
 	if debug {
@@ -107,7 +107,7 @@ func (e *ECoder) ClearCache() {
 // CheckAll ...
 // this function check whether all the data and parity blocks are there, if not do reconstruction & regeneration
 func (e *ECoder) CheckAll() error {
-	e.matrix.ShowMatrix()
+	e.matrix.ShowMatrix(debug)
 	var healthDataKey []int
 	var healthParityKey []int
 	healthDataPath := make(map[int]string)
@@ -160,10 +160,10 @@ func (e *ECoder) CheckAll() error {
 				}
 			}
 			subEncodeMat := mathop.NewMatrixFromRows(matRows)
-			subDataNParityMat := mathop.NewMatrixFromRows(matRows)
-			subEncodeMat.ShowMatrix()
+			subDataNParityMat := mathop.NewMatrixFromRows(dataRows)
+			subEncodeMat.ShowMatrix(debug)
 			decodeMat, err := subEncodeMat.Inv()
-			decodeMat.ShowMatrix()
+			decodeMat.ShowMatrix(debug)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -173,12 +173,28 @@ func (e *ECoder) CheckAll() error {
 				wg.Add(1)
 				go func(k int, v string, wg *sync.WaitGroup) {
 					subDecodeRow := decodeMat.GetRow(k)
+					R, C := subDataNParityMat.GetShape()
+					DPrint("feed data and parity blocks: (%v, %v)", R, C)
 					recovered := subDecodeRow.Mul(subDataNParityMat).Matrix[0]
+					DPrint("recover block %v at %v of length %v", k, v, len(recovered))
 					err := ioutil.WriteFile(v, recovered, 0644)
-					DPrint("recover block %v at %v", k, v)
 					if err != nil {
 						log.Fatal(err)
 					}
+
+					if debug {
+						shouldbe := e.dataBlocks[k]
+						if len(shouldbe) != len(recovered) {
+							log.Fatal("recover length error")
+						}
+						for ii := 0; ii < len(shouldbe); ii++ {
+							if shouldbe[ii] != recovered[ii] {
+								log.Fatalf("recover error at location %d, %v != %v",
+									ii, shouldbe[ii], recovered[ii])
+							}
+						}
+					}
+
 					wg.Done()
 				}(k, v, &wg)
 			}

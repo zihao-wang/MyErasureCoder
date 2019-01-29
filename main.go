@@ -8,8 +8,7 @@ import (
 )
 
 func main() {
-	//sampleFileName := "Reed-Solomon-Error-Correction.pdf"
-	sampleFileName := "1707.07345.pdf"
+	sampleFileName := "Reed-Solomon-Error-Correction.pdf"
 	outputFolder := "tmp"
 	recoverFile := "recover.pdf"
 	fmt.Printf("test file %v\n", sampleFileName)
@@ -23,6 +22,8 @@ func main() {
 	}
 	e.Encoding()
 	e.StoreAll(outputFolder)
-	e.DeleteData(6)
-	e.FTReAssemble(recoverFile)
+	for k := 0; k < 10; k++ {
+		e.DeleteData(1)
+		e.FTReAssemble(recoverFile)
+	}
 }

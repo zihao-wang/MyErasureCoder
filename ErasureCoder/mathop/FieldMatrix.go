@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-const SanityCheck = true
+const SanityCheck = false
 
 type GF8Matrix struct {
 	numRow int
@@ -140,7 +140,7 @@ func (mPointer *GF8Matrix) Inv() (*GF8Matrix, error) {
 
 	if SanityCheck {
 		shouldBeIdentity := m.Mul(mPointer)
-		shouldBeIdentity.ShowMatrix()
+		shouldBeIdentity.ShowMatrix(SanityCheck)
 		for r := 0; r < m.numRow; r++ {
 			for c := 0; c < m.numCol; c++ {
 				if r == c && shouldBeIdentity.Matrix[r][c] != 1 {
@@ -155,7 +155,10 @@ func (mPointer *GF8Matrix) Inv() (*GF8Matrix, error) {
 	return m, nil
 }
 
-func (m *GF8Matrix) ShowMatrix() {
+func (m *GF8Matrix) ShowMatrix(debug bool) {
+	if !debug {
+		return
+	}
 	for r := 0; r < m.numRow; r++ {
 		for c := 0; c < m.numCol; c++ {
 			fmt.Printf("%d\t", m.Matrix[r][c])
@@ -169,4 +172,8 @@ func (m *GF8Matrix) GetRow(rId int) *GF8Matrix {
 	outMat := NewMatrix(1, m.numCol)
 	outMat.Matrix[0] = m.Matrix[rId]
 	return outMat
+}
+
+func (m *GF8Matrix) GetShape() (int, int) {
+	return m.numRow, m.numCol
 }
