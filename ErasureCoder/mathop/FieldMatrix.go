@@ -126,7 +126,7 @@ func (mPointer *GF8Matrix) Inv() (*GF8Matrix, error) {
 		m.multRow(r, inverseTbl[head])
 		// erase other rows
 		for rFollow := 0; rFollow < m.numRow; rFollow++ {
-			if rFollow == r {
+			if rFollow == r || m.Matrix[rFollow][r] == 0 {
 				continue
 			}
 			m.mulAddToRow(r, m.Matrix[rFollow][r], rFollow)
