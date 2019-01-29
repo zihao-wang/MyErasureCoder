@@ -1,11 +1,6 @@
-# Erasure Codes
+# Erasure Coder
 
 ## TODO list
-- [ ] file IO
+- [ ] acceleration of the XOR operation in matrix
 - [ ] make the ECoder a interface that supports many different ways of encoding or decoding
 
-## API analysis
-
-1. IO concern
-
-2. Encoding Computation
